@@ -1,0 +1,16 @@
+[package]
+name = "docker-sandbox-tui"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "agent"
+path = "src/main.rs"
+
+[dependencies]
+inquire = "0.7"
+colored = "2"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+dirs = "5"
