@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use colored::Colorize;
-use inquire::{Confirm, Select, Text};
+use inquire::{error::InquireError, Confirm, Select, Text};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -70,7 +70,24 @@ struct SandboxInfo {
 // Entry point
 // ---------------------------------------------------------------------------
 
-fn main() -> Result<()> {
+fn main() {
+    if let Err(e) = run() {
+        let interrupted = e.chain().any(|cause| {
+            matches!(
+                cause.downcast_ref::<InquireError>(),
+                Some(InquireError::OperationInterrupted | InquireError::OperationCanceled)
+            )
+        });
+        if interrupted {
+            println!("\n  Cancelled.");
+            std::process::exit(130);
+        }
+        eprintln!("\n  {} {e:#}", "Error:".red());
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
     let path_arg = args.get(1).map(|s| s.as_str());
 
