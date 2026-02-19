@@ -155,11 +155,7 @@ fn quick_launch(existing: Option<SandboxInfo>, workspace: &Path, config: &Config
     }
 
     // No existing sandbox — create with defaults (no prompts)
-    let agent = config
-        .agent
-        .as_deref()
-        .unwrap_or("claude")
-        .to_string();
+    let agent = config.agent.as_deref().unwrap_or("claude").to_string();
     let open_vscode = config.open_vscode.unwrap_or(false);
 
     println!(
@@ -434,8 +430,8 @@ fn prompt_vscode(config: &Config) -> Result<bool> {
 
 fn maybe_save_config(agent: &str, open_vscode: bool, current: &Config) -> Result<()> {
     // Only ask if the new values differ from what's already saved
-    let already_saved = current.agent.as_deref() == Some(agent)
-        && current.open_vscode == Some(open_vscode);
+    let already_saved =
+        current.agent.as_deref() == Some(agent) && current.open_vscode == Some(open_vscode);
 
     if already_saved {
         return Ok(());
@@ -443,7 +439,10 @@ fn maybe_save_config(agent: &str, open_vscode: bool, current: &Config) -> Result
 
     // First launch (nothing saved yet) → default yes; subsequent → default no
     let is_first_launch = current.agent.is_none() && current.open_vscode.is_none();
-    let label = format!("Save as new default? (agent={agent}  vscode={})", if open_vscode { "yes" } else { "no" });
+    let label = format!(
+        "Save as new default? (agent={agent}  vscode={})",
+        if open_vscode { "yes" } else { "no" }
+    );
     let save = Confirm::new(&label)
         .with_default(is_first_launch)
         .prompt()
@@ -453,7 +452,7 @@ fn maybe_save_config(agent: &str, open_vscode: bool, current: &Config) -> Result
         let updated = Config {
             agent: Some(agent.to_string()),
             open_vscode: Some(open_vscode),
-            show_vscode_prompt: Some(true)
+            show_vscode_prompt: Some(true),
         };
         save_config(&updated)?;
         if let Some(p) = config_path() {
@@ -471,24 +470,22 @@ fn print_summary(workspace: &Path, agent: &str, template: &Option<String>) {
         workspace.display()
     );
     if let Some(t) = template {
-        cmd.push_str(&format!(" --image {t}"));
+        cmd.push_str(&format!(" -t {t}"));
     }
     println!("{}", cmd.yellow());
     println!();
 }
 
 fn run_sandbox(agent: &str, workspace: &Path, template: &Option<String>) -> Result<()> {
-    let mut args = vec![
-        "sandbox".to_string(),
-        "run".to_string(),
-        agent.to_string(),
-        workspace.to_string_lossy().to_string(),
-    ];
+    let mut args = vec!["sandbox".to_string(), "run".to_string()];
 
     if let Some(t) = template {
-        args.push("--image".to_string());
+        args.push("-t".to_string());
         args.push(t.clone());
     }
+
+    args.push(agent.to_string());
+    args.push(workspace.to_string_lossy().to_string());
 
     let status = Command::new("docker")
         .args(&args)
@@ -526,10 +523,10 @@ fn launch_vscode(workspace: &Path) -> Result<()> {
 fn print_hints(name: &str) {
     println!();
     println!("  {}", "Hint: docker sandbox ls".dimmed());
+    println!("  {}", format!("Hint: docker sandbox run {name}").dimmed());
     println!(
         "  {}",
-        format!("Hint: docker sandbox run {name}").dimmed()
+        "Hint: agent .  (quick-launch in current dir)".dimmed()
     );
-    println!("  {}", "Hint: agent .  (quick-launch in current dir)".dimmed());
     println!();
 }
