@@ -2,6 +2,10 @@
 
 A `create-vite-app`-like TUI tool for managing Docker sandboxes for agents with ease. I've vibecoded it because Docker sandbox UX sucks.
 
+## Archived
+
+I have migrated to [microsandboxes](https://microsandbox.dev/) and no longer interested in support of this primitive wrapper around an old version of Docker Sandboxes. + Docker the company made their own shitty wrapper `sbx`
+
 ## Features
 
 - **Interactive Wizard**: Step-by-step prompts to create new sandboxes with custom agents, workspaces, names, and Docker images.
